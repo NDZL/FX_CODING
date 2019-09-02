@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Symbol.RFID.API3">
+    <CLASSES>
+      <root url="jar://C:/Program Files/Zebra FXSeries Host Java SDK/RFID/bin/Symbol.RFID.API3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
