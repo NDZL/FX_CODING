@@ -173,6 +173,7 @@ public class FXOP_ONE {
                 //String tagdata = FX_reader_serial+"-epc:"+key;
 
                 hs.add(date+"-"+tagdata);
+                System.out.println(tagdata);
             }
         }
 
