@@ -4,6 +4,9 @@ import com.mot.rfid.api3.*;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static javafx.application.Platform.exit;
 
 public class FXOP_ONE {
 
@@ -11,7 +14,7 @@ public class FXOP_ONE {
     String FX_reader_serial = "";
     public Antennas antennas;
 
-    HashSet<String> hs = new HashSet<>();
+    ConcurrentLinkedQueue<String> hs = new ConcurrentLinkedQueue<>();
 
     public FXOP_ONE(){
         Connect();
@@ -51,7 +54,8 @@ public class FXOP_ONE {
         System.out.println("ModelName= "+myReader.ReaderCapabilities.getModelName());
         FX_reader_serial = myReader.ReaderCapabilities.ReaderID.getID();
         System.out.println("SerialNo= "+FX_reader_serial);
-        System.out.println("FirwareVersion="+myReader.ReaderCapabilities.getFirwareVersion());
+        System.out.println("FirmwareVersion="+myReader.ReaderCapabilities.getFirwareVersion());
+        System.out.println("Printing data in ./rfid_data.txt");
 
     }
 
@@ -116,6 +120,26 @@ public class FXOP_ONE {
     }
 
 
+    class EventPrinter implements Runnable {
+
+        @Override
+        public void run() {
+            while(true){
+                if(!hs.isEmpty()){
+                    String _tbprinted = hs.poll();
+                    pw.println(_tbprinted);
+                    //pw.println(hs.size());
+                    pw.flush();
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
     PrintWriter pw;
     public class EventsHandler implements RfidEventsListener
     {
@@ -128,33 +152,35 @@ public class FXOP_ONE {
             }
         }
 
+
+
         TagData[]  myTags = null;
         public void eventReadNotify(RfidReadEvents rre) {
 
-            myTags = myReader.Actions.getReadTags(5);
+            myTags = myReader.Actions.getReadTags(1);
+
+            java.util.Date date=new java.util.Date(System.currentTimeMillis());
             for (int index = 0; index < myTags.length; index++)
             {
                 TagData tag = myTags[index];
                 String key = tag.getTagID();
                 String tag_antenna = ""+tag.getAntennaID();
-                String tag_PC = ""+tag.getPC();
+//                String tag_PC = ""+tag.getPC();
                 String tag_RSSI = ""+tag.getPeakRSSI();
-                String tag_membankdata = tag.getMemoryBankData();
+//                String tag_membankdata = tag.getMemoryBankData();
 
-                String tagdata = FX_reader_serial+"-"+index+/*tag_time.ConvertTimetoString()+*/",tid:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI+",pc:"+tag_PC ;
+                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",tid:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI;
                 //String tagdata = FX_reader_serial+"-epc:"+key;
 
-                //System.out.println("<"+tagdata+">");
-                pw.println(tagdata);
-                hs.add(tagdata);
+                hs.add(date+"-"+tagdata);
             }
+        }
+
+        public void eventStatusNotify(RfidStatusEvents rse)
+        {
 
         }
 
-    public void eventStatusNotify(RfidStatusEvents rse)
-    {
-
-    }
 
     }
     private EventsHandler eventsHandler = new EventsHandler();
@@ -165,14 +191,33 @@ public class FXOP_ONE {
         myReader.Events.setAttachTagDataWithReadEvent(false);
         myReader.Events.addEventsListener(eventsHandler);
 
+
+        try {
+            Antennas.Config antennaConfig = myReader.Config.Antennas.getAntennaConfig(2);
+            antennaConfig.setTransmitPowerIndex((short)290);
+
+            Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(2);
+            singulationControl.setSession(SESSION.SESSION_S0);
+
+            myReader.Config.Antennas.setSingulationControl(2, singulationControl);
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+
+        EventPrinter ep = new EventPrinter();
+        new Thread(ep).start();
     }
 
     void InventoryRun()
     {
         //file:///C:/Program%20Files/Zebra%20FXSeries%20Host%20Java%20SDK/RFID/doc/ProgrammersGuide/Generic%20Reader%20Interface/Basic%20Operations.htm
-        System.out.println("Press Enter to stop inventory");
+        System.out.println("A few seconds inventory");
         try {
             myReader.Actions.Inventory.perform();
+
+
         } catch (InvalidUsageException e) {
             e.printStackTrace();
         } catch (OperationFailureException e) {
@@ -180,11 +225,9 @@ public class FXOP_ONE {
         }
 
         try
-        {  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-           br.readLine();
-           br.close();
-           pw.flush();
-           pw.close();
+        {
+
+            Thread.sleep(6000);
         }
         catch(Exception /*IOException*/ioex)
         {            System.out.println("IO Exception.Stopping inventory");       }
@@ -195,10 +238,11 @@ public class FXOP_ONE {
                 myReader.Actions.Inventory.stop();
             } catch (InvalidUsageException e) {
                 e.printStackTrace();
-            } catch (OperationFailureException e) {
-                e.printStackTrace();
+            } catch (OperationFailureException ee) {
+                ee.printStackTrace();
             }
-
+            System.out.println("Inventory stopped");
+            exit();
 
         }
 
