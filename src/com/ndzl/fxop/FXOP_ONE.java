@@ -22,7 +22,7 @@ public class FXOP_ONE {
 
         InventorySetup();
         //InventoryRun();
-        InventoryOneTag();
+        //InventoryOneTag();
 
         Disconnect();
     }
@@ -58,6 +58,7 @@ public class FXOP_ONE {
         System.out.println("FirmwareVersion="+myReader.ReaderCapabilities.getFirwareVersion());
         System.out.println("Printing data in ./rfid_data.txt");
 
+        System.out.println("Transmit power index table\n"+getTransmitPowerIndexTable());
     }
 
     void Disconnect(){
@@ -318,6 +319,20 @@ public class FXOP_ONE {
             }
             System.out.println("Inventory stopped");
         }
+    }
+
+    String getTransmitPowerIndexTable(){
+        int [] powerLevels = myReader.ReaderCapabilities.getTransmitPowerLevelValues();
+        //return String.valueOf(powerLevels[]);
+        StringBuilder _ssbb=new StringBuilder();
+        /*
+        for(int i=0; i<powerLevels.length; i++){
+            _ssbb.append(i+"="+powerLevels[i]+"\n");
+        }
+        */
+        _ssbb.append("min index 0 = "+(1.0d*powerLevels[0])/100.0+"dBm\n");
+        _ssbb.append("max index "+(powerLevels.length-1)+  " = "+1.0*powerLevels[powerLevels.length-1]/100.0+"dBm\n");
+        return _ssbb.toString();
     }
 
 }
