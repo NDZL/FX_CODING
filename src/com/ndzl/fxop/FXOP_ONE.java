@@ -3,7 +3,7 @@ package com.ndzl.fxop;
 import com.mot.rfid.api3.*;
 
 import java.io.*;
-import java.util.HashSet;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static javafx.application.Platform.exit;
@@ -216,7 +216,7 @@ public class FXOP_ONE {
                 String key = tag.getTagID();
                 String tag_antenna = ""+tag.getAntennaID();
                 String tag_RSSI = ""+tag.getPeakRSSI();
-                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",tid:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI;
+                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",EPC:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI;
 
                 hs.add(date+"-"+tagdata);
                 System.out.println(tagdata);
@@ -251,7 +251,10 @@ public class FXOP_ONE {
             //antenna power nel metodo inventory
 
             Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(2);
-            singulationControl.setSession(SESSION.SESSION_S0);
+            if(isReadWriteOperation)
+                singulationControl.setSession(SESSION.SESSION_S1);
+            else
+                singulationControl.setSession(SESSION.SESSION_S0);
 
             myReader.Config.Antennas.setSingulationControl(2, singulationControl);
         } catch (InvalidUsageException e) {
