@@ -21,8 +21,8 @@ public class FXOP_ONE {
         //WriteTag();
 
         InventorySetup();
-        //InventoryRun();
-        //InventoryOneTag();
+        InventoryRun();
+        //InventoryOneTag_EPCplusplus();
 
         Disconnect();
     }
@@ -109,9 +109,25 @@ public class FXOP_ONE {
 
     void setAntenna2_minPower(){
         try {
-            Antennas.Config antennaConfig = myReader.Config.Antennas.getAntennaConfig(2);
-            antennaConfig.setTransmitPowerIndex((short)2);
-            System.out.println("CURRENT ANTENNA 2 POWER: "+ antennaConfig.getTransmitPowerIndex());
+            Antennas.AntennaRfConfig antennaRfConfig = myReader.Config.Antennas.getAntennaRfConfig(2);
+            antennaRfConfig.setTransmitPowerIndex((short)0);
+            myReader.Config.Antennas.setAntennaRfConfig(2,antennaRfConfig);
+            System.out.println("CURRENT ANTENNA 2 POWER IDX: "+ antennaRfConfig.getTransmitPowerIndex());
+
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void setAntenna2_maxPower(){
+        try {
+            int maxidx = myReader.ReaderCapabilities.getTransmitPowerLevelValues().length-1;
+            Antennas.AntennaRfConfig antennaRfConfig = myReader.Config.Antennas.getAntennaRfConfig(2);
+            antennaRfConfig.setTransmitPowerIndex((short)maxidx);
+            myReader.Config.Antennas.setAntennaRfConfig(2,antennaRfConfig);
+            System.out.println("CURRENT ANTENNA 2 POWER IDX: "+ antennaRfConfig.getTransmitPowerIndex());
 
         } catch (InvalidUsageException e) {
             e.printStackTrace();
@@ -231,8 +247,8 @@ public class FXOP_ONE {
 
 
         try {
-            Antennas.Config antennaConfig = myReader.Config.Antennas.getAntennaConfig(2);
-            antennaConfig.setTransmitPowerIndex((short)290);
+
+            //antenna power nel metodo inventory
 
             Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(2);
             singulationControl.setSession(SESSION.SESSION_S0);
@@ -254,6 +270,8 @@ public class FXOP_ONE {
         System.out.println("A few seconds inventory");
 
         isReadWriteOperation = false;
+
+        setAntenna2_maxPower();
 
         try {
             myReader.Actions.Inventory.perform();
@@ -289,11 +307,13 @@ public class FXOP_ONE {
 
     }
 
-    void InventoryOneTag()
+    void InventoryOneTag_EPCplusplus()
     {
         System.out.println("Lettura di un unico tag");
 
         isReadWriteOperation = true;
+
+        setAntenna2_minPower();
 
         try {
             myReader.Actions.Inventory.perform();
