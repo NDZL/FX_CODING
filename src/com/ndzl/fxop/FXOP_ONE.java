@@ -6,13 +6,15 @@ import java.io.*;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static javafx.application.Platform.exit;
+//import static javafx.application.Platform.exit;  //for exit()
 
 public class FXOP_ONE {
 
     RFIDReader myReader = null;
     String FX_reader_serial = "";
     public Antennas antennas;
+    long INVENTORY_TIMER_MILLIS = 6000;
+    int ANTENNA_INDEX = 2;              //<== IDX OF ONE CONNECTED ANTENNA
 
     ConcurrentLinkedQueue<String> hs = new ConcurrentLinkedQueue<>();
 
@@ -37,7 +39,7 @@ public class FXOP_ONE {
     void Connect(){
         myReader = new RFIDReader();
 
-        myReader.setHostName("192.168.1.10");
+        myReader.setHostName("169.254.10.1");
         myReader.setPort(5084);
 
         antennas = myReader.Config.Antennas;
@@ -100,9 +102,9 @@ public class FXOP_ONE {
             myReader.Actions.TagAccess.writeWait("313830303030303130304444", writeAccessParams,  null);
 
         } catch (InvalidUsageException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         } catch (OperationFailureException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
 
     }
@@ -115,9 +117,9 @@ public class FXOP_ONE {
             System.out.println("CURRENT ANTENNA 2 POWER IDX: "+ antennaRfConfig.getTransmitPowerIndex());
 
         } catch (InvalidUsageException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (OperationFailureException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -130,9 +132,9 @@ public class FXOP_ONE {
             System.out.println("CURRENT ANTENNA 2 POWER IDX: "+ antennaRfConfig.getTransmitPowerIndex());
 
         } catch (InvalidUsageException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (OperationFailureException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -250,13 +252,13 @@ public class FXOP_ONE {
 
             //antenna power nel metodo inventory
 
-            Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(2);
+            Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(ANTENNA_INDEX);
             if(isReadWriteOperation)
                 singulationControl.setSession(SESSION.SESSION_S1);
             else
                 singulationControl.setSession(SESSION.SESSION_S0);
 
-            myReader.Config.Antennas.setSingulationControl(2, singulationControl);
+            myReader.Config.Antennas.setSingulationControl(ANTENNA_INDEX, singulationControl);
         } catch (InvalidUsageException e) {
             e.printStackTrace();
         } catch (OperationFailureException e) {
@@ -289,7 +291,7 @@ public class FXOP_ONE {
         try
         {
 
-            Thread.sleep(6000);
+            Thread.sleep(INVENTORY_TIMER_MILLIS);
         }
         catch(Exception /*IOException*/ioex)
         {            System.out.println("IO Exception.Stopping inventory");       }
@@ -304,7 +306,7 @@ public class FXOP_ONE {
                 ee.printStackTrace();
             }
             System.out.println("Inventory stopped");
-            exit();
+            //exit();
 
         }
 
