@@ -22,9 +22,10 @@ public class FXOP_ONE {
         Connect();
         //WriteTag();
 
-        InventorySetup();
-        //InventoryRun(1000);
-        InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before
+        InventorySetup(); //keep this always enabled
+        //InventoryRun(5000);  //use many tags near the antenna to show a good output!
+        InventoryRunWithPrefilter(5000);  //use many tags near the antenna to show a good output!
+        //InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
 
         Disconnect();
     }
@@ -140,6 +141,7 @@ public class FXOP_ONE {
 
     void WriteECPplusplus(String currentEPC)
     {
+        System.out.println("WriteECPplusplus::BEGIN");
 
         setAntenna2_minPower();
 
@@ -147,7 +149,7 @@ public class FXOP_ONE {
         TagAccess.WriteAccessParams writeAccessParams = tagAccess.new WriteAccessParams();
 
         String last4char = currentEPC.substring(currentEPC.length()-4);
-        System.out.println("found EPC ending <..."+last4char+">");
+        System.out.println("WriteECPplusplus::found EPC ending <..."+last4char+">");
         int incremented = 1+ Integer.parseInt(last4char, 16);
 
         String last4charIncremented = String.format("%04X", incremented);
@@ -167,8 +169,8 @@ public class FXOP_ONE {
         } catch (OperationFailureException e) {
             e.printStackTrace();
         }
-        System.out.println("you should now have EPC <..."+last4charIncremented+">");
-
+        System.out.println("WriteECPplusplus::you should now have EPC <..."+last4charIncremented+">");
+        System.out.println("WriteECPplusplus::END");
     }
 
     class EventPrinter implements Runnable {
@@ -215,7 +217,7 @@ public class FXOP_ONE {
                 TagData tag = myTags[index];
                 String key = tag.getTagID();
 
-                EPC_TOBE_INCREMENTED = key;
+                EPC_TOBE_INCREMENTED = key;  //randomly chosen tag for increment demo
 
                 String tag_antenna = ""+tag.getAntennaID();
                 String tag_RSSI = ""+tag.getPeakRSSI();
@@ -245,8 +247,6 @@ public class FXOP_ONE {
 
         try {
 
-            //antenna power nel metodo inventory
-
             Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(ANTENNA_INDEX);
             /*
             if(isReadWriteOperation)
@@ -274,6 +274,68 @@ public class FXOP_ONE {
         isReadWriteOperation = false;
 
         setAntenna2_minPower();
+
+        try {
+            myReader.Actions.Inventory.perform();
+
+
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+
+        try
+        {
+
+            Thread.sleep(millisDuration);
+        }
+        catch(Exception /*IOException*/ioex)
+        {            System.out.println("IO Exception.Stopping inventory");       }
+        finally
+        {
+
+            try {
+                myReader.Actions.Inventory.stop();
+            } catch (InvalidUsageException e) {
+                e.printStackTrace();
+            } catch (OperationFailureException ee) {
+                ee.printStackTrace();
+            }
+            System.out.println("Inventory stopped");
+            //exit();
+
+        }
+
+    }
+
+
+    void InventoryRunWithPrefilter(long millisDuration)
+    {
+        System.out.println("InventoryRunWithPrefilter::BEGIN filter on EPC=3218..");
+
+        isReadWriteOperation = false;
+
+        setAntenna2_minPower();
+
+        try{
+            PreFilters filters = new PreFilters();
+            PreFilters.PreFilter filter = filters.new PreFilter();
+            byte[] tagMask = new byte[] { 0x32, 0x18 }; // ATTENTION: "3218".getBytes();  would be wrong!
+            filter.setAntennaID((short) 2 );// Set this filter for Antenna ID 2
+            filter.setTagPattern(tagMask);// Tags which starts with 0x...
+            filter.setTagPatternBitCount(tagMask.length * 8);
+            filter.setBitOffset(32); // skip PC bits (always it should be in bit length)
+            filter.setMemoryBank(MEMORY_BANK.MEMORY_BANK_EPC);
+            filter.setFilterAction(FILTER_ACTION.FILTER_ACTION_STATE_UNAWARE); // use state unaware singulation
+            filter.StateUnawareAction.setStateUnawareAction(STATE_UNAWARE_ACTION.STATE_UNAWARE_ACTION_SELECT);
+            myReader.Actions.PreFilters.add(filter);
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+
 
         try {
             myReader.Actions.Inventory.perform();
