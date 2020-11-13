@@ -13,8 +13,8 @@ public class FXOP_ONE {
     RFIDReader myReader = null;
     String FX_reader_serial = "";
     public Antennas antennas;
-    long INVENTORY_TIMER_MILLIS = 6000;
     int ANTENNA_INDEX = 2;              //<== IDX OF ONE CONNECTED ANTENNA
+    String EPC_TOBE_INCREMENTED="";
 
     ConcurrentLinkedQueue<String> hs = new ConcurrentLinkedQueue<>();
 
@@ -23,8 +23,8 @@ public class FXOP_ONE {
         //WriteTag();
 
         InventorySetup();
-        InventoryRun();
-        //InventoryOneTag_EPCplusplus();
+        //InventoryRun(1000);
+        InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before
 
         Disconnect();
     }
@@ -58,7 +58,7 @@ public class FXOP_ONE {
         FX_reader_serial = myReader.ReaderCapabilities.ReaderID.getID();
         System.out.println("SerialNo= "+FX_reader_serial);
         System.out.println("FirmwareVersion="+myReader.ReaderCapabilities.getFirwareVersion());
-        System.out.println("Printing data in ./rfid_data.txt");
+        System.out.println("Printing data to ./rfid_data.txt");
 
         System.out.println("Transmit power index table\n"+getTransmitPowerIndexTable());
     }
@@ -84,7 +84,7 @@ public class FXOP_ONE {
 
     void WriteTag(){
 
-        setAntenna2_minPower();
+        setAntenna2_maxPower();
 
         TagAccess tagAccess = new TagAccess();
         TagAccess.WriteAccessParams writeAccessParams = tagAccess.new WriteAccessParams();
@@ -93,13 +93,13 @@ public class FXOP_ONE {
         writeAccessParams.setMemoryBank(memBank);
 
         try {
-            byte[] writeData = hexStringToByteArray("5555");
+            byte[] writeData = hexStringToByteArray("0004");
             writeAccessParams.setWriteData(writeData);
             writeAccessParams.setWriteDataLength(2);
             writeAccessParams.setByteOffset(14);
             writeAccessParams.setAccessPassword(0);
 
-            myReader.Actions.TagAccess.writeWait("313830303030303130304444", writeAccessParams,  null);
+            myReader.Actions.TagAccess.writeWait("321833B2DDD9014000000003", writeAccessParams,  null);
 
         } catch (InvalidUsageException e) {
            // e.printStackTrace();
@@ -146,9 +146,6 @@ public class FXOP_ONE {
         TagAccess tagAccess = new TagAccess();
         TagAccess.WriteAccessParams writeAccessParams = tagAccess.new WriteAccessParams();
 
-        MEMORY_BANK memBank = MEMORY_BANK.MEMORY_BANK_EPC;
-        writeAccessParams.setMemoryBank(memBank);
-
         String last4char = currentEPC.substring(currentEPC.length()-4);
         System.out.println("found EPC ending <..."+last4char+">");
         int incremented = 1+ Integer.parseInt(last4char, 16);
@@ -157,6 +154,7 @@ public class FXOP_ONE {
 
         try {
             byte[] writeData = hexStringToByteArray(last4charIncremented);
+            writeAccessParams.setMemoryBank(MEMORY_BANK.MEMORY_BANK_EPC);
             writeAccessParams.setWriteData(writeData);
             writeAccessParams.setWriteDataLength(2);
             writeAccessParams.setByteOffset(14);
@@ -216,6 +214,9 @@ public class FXOP_ONE {
             {
                 TagData tag = myTags[index];
                 String key = tag.getTagID();
+
+                EPC_TOBE_INCREMENTED = key;
+
                 String tag_antenna = ""+tag.getAntennaID();
                 String tag_RSSI = ""+tag.getPeakRSSI();
                 String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",EPC:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI;
@@ -223,12 +224,6 @@ public class FXOP_ONE {
                 hs.add(date+"-"+tagdata);
                 System.out.println(tagdata);
 
-                if(isReadWriteOperation){
-                    isReadWriteOperation=false;
-
-                    WriteECPplusplus(key);  //innesca scrittura di EPC++
-
-                }
             }
         }
 
@@ -253,9 +248,11 @@ public class FXOP_ONE {
             //antenna power nel metodo inventory
 
             Antennas.SingulationControl singulationControl = myReader.Config.Antennas.getSingulationControl(ANTENNA_INDEX);
+            /*
             if(isReadWriteOperation)
                 singulationControl.setSession(SESSION.SESSION_S1);
             else
+             */
                 singulationControl.setSession(SESSION.SESSION_S0);
 
             myReader.Config.Antennas.setSingulationControl(ANTENNA_INDEX, singulationControl);
@@ -269,14 +266,14 @@ public class FXOP_ONE {
         new Thread(ep).start();
     }
 
-    void InventoryRun()
+    void InventoryRun(long millisDuration)
     {
         //file:///C:/Program%20Files/Zebra%20FXSeries%20Host%20Java%20SDK/RFID/doc/ProgrammersGuide/Generic%20Reader%20Interface/Basic%20Operations.htm
         System.out.println("A few seconds inventory");
 
         isReadWriteOperation = false;
 
-        setAntenna2_maxPower();
+        setAntenna2_minPower();
 
         try {
             myReader.Actions.Inventory.perform();
@@ -291,7 +288,7 @@ public class FXOP_ONE {
         try
         {
 
-            Thread.sleep(INVENTORY_TIMER_MILLIS);
+            Thread.sleep(millisDuration);
         }
         catch(Exception /*IOException*/ioex)
         {            System.out.println("IO Exception.Stopping inventory");       }
@@ -312,13 +309,13 @@ public class FXOP_ONE {
 
     }
 
-    void InventoryOneTag_EPCplusplus()
+    void InventoryOneTag_EPCplusplus(int millisWait)
     {
-        System.out.println("Lettura di un unico tag");
+        System.out.println("InventoryOneTag_EPCplusplus::BEGIN");
 
         isReadWriteOperation = true;
 
-        setAntenna2_minPower();
+        setAntenna2_maxPower();  //higher power recommended for writing ops
 
         try {
             myReader.Actions.Inventory.perform();
@@ -329,10 +326,10 @@ public class FXOP_ONE {
         }
         try
         {
-            Thread.sleep(200);
+            Thread.sleep(millisWait);
         }
         catch(Exception /*IOException*/ioex)
-        {            System.out.println("IO Exception.Stopping inventory");       }
+        {            System.out.println("InventoryOneTag_EPCplusplus::IO Exception.Stopping inventory");       }
         finally
         {
             try {
@@ -342,8 +339,15 @@ public class FXOP_ONE {
             } catch (OperationFailureException ee) {
                 ee.printStackTrace();
             }
-            System.out.println("Inventory stopped");
+            System.out.println("InventoryOneTag_EPCplusplus::END-Inventory stopped");
         }
+
+
+        //inventory just stopped has selected 1 tag that will be used here:
+
+        WriteECPplusplus(EPC_TOBE_INCREMENTED);  // EPC++
+
+
     }
 
     String getTransmitPowerIndexTable(){
