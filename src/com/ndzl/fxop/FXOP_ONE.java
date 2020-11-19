@@ -8,6 +8,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 //import static javafx.application.Platform.exit;  //for exit()
 
+/*
+REMOTE DEBUG. To be run on fx jvm:
+* java -Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y -Djava.library.path=/platform/lib/  -cp .:/platform/lib/Symbol.RFID.API3.jar com.ndzl.fxop.FXOP_ONE
+
+ * */
+
 public class FXOP_ONE {
 
     RFIDReader myReader = null;
@@ -23,8 +29,8 @@ public class FXOP_ONE {
         //WriteTag();
 
         InventorySetup(); //keep this always enabled
-        //InventoryRun(5000);  //use many tags near the antenna to show a good output!
-        InventoryRunWithPrefilter(5000);  //use many tags near the antenna to show a good output!
+        InventoryRun(5000);  //use many tags near the antenna to show a good output!
+        //InventoryRunWithPrefilter(5000);  //use many tags near the antenna to show a good output!
         //InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
 
         Disconnect();
@@ -40,7 +46,8 @@ public class FXOP_ONE {
     void Connect(){
         myReader = new RFIDReader();
 
-        myReader.setHostName("169.254.10.1");
+        //myReader.setHostName("169.254.10.1");
+        myReader.setHostName("127.0.0.1");
         myReader.setPort(5084);
 
         antennas = myReader.Config.Antennas;
