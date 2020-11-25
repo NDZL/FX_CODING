@@ -19,9 +19,8 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="286fd74e-970f-4696-ac53-698cfe848241" name="Default Changelist" comment="InventoryRunWithPrefilter added. Selects EPC=3218...">
+    <list default="true" id="286fd74e-970f-4696-ac53-698cfe848241" name="Default Changelist" comment="RUN REMOTE profile added and tested">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/ndzl/fxop/EventsHandler.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/ndzl/fxop/FXOP_ONE.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/ndzl/fxop/FXOP_ONE.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,9 +45,9 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="project.propCompiler" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
-  <component name="RunManager" selected="Remote.RUN REMOTE">
+  <component name="RunManager" selected="Application.RUN HOST">
     <configuration name="RUN HOST" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.ndzl.fxop.FXOP_ONE" />
       <module name="FXOP_ONE" />
@@ -105,7 +104,14 @@
       <option name="project" value="LOCAL" />
       <updated>1605293711394</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="RUN REMOTE profile added and tested">
+      <created>1605813566116</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1605813566117</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -124,13 +130,14 @@
     <MESSAGE value="Y2020-Intellij" />
     <MESSAGE value="InventoryOneTag_EPCplusplus improved" />
     <MESSAGE value="InventoryRunWithPrefilter added. Selects EPC=3218..." />
-    <option name="LAST_COMMIT_MESSAGE" value="InventoryRunWithPrefilter added. Selects EPC=3218..." />
+    <MESSAGE value="RUN REMOTE profile added and tested" />
+    <option name="LAST_COMMIT_MESSAGE" value="RUN REMOTE profile added and tested" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="223" y="67" width="1089" height="713" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605812831753">
+    <state x="223" y="67" width="1089" height="713" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606299643932">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="223" y="67" width="1089" height="713" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1605812831753" />
+    <state x="223" y="67" width="1089" height="713" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1606299643932" />
     <state x="498" y="214" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1605203106598">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -139,46 +146,46 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="479" height="466" key="DebuggerActiveHint/0.0.1536.824@0.0.1536.824" timestamp="1605293365893" />
-    <state width="1493" height="261" key="GridCell.Tab.0.bottom" timestamp="1605812879384">
+    <state width="1478" height="303" key="GridCell.Tab.0.bottom" timestamp="1606323546522">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1605812879384" />
-    <state width="1493" height="261" key="GridCell.Tab.0.center" timestamp="1605812879384">
+    <state width="1478" height="303" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1606323546522" />
+    <state width="1478" height="303" key="GridCell.Tab.0.center" timestamp="1606323546522">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1605812879384" />
-    <state width="1493" height="261" key="GridCell.Tab.0.left" timestamp="1605812879384">
+    <state width="1478" height="303" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1606323546522" />
+    <state width="1478" height="303" key="GridCell.Tab.0.left" timestamp="1606323546521">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1605812879384" />
-    <state width="1493" height="261" key="GridCell.Tab.0.right" timestamp="1605812879384">
+    <state width="1478" height="303" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1606323546521" />
+    <state width="1478" height="303" key="GridCell.Tab.0.right" timestamp="1606323546522">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1605812879384" />
-    <state width="1493" height="261" key="GridCell.Tab.1.bottom" timestamp="1605812882107">
+    <state width="1478" height="303" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1606323546522" />
+    <state width="1478" height="261" key="GridCell.Tab.1.bottom" timestamp="1606317646089">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1605812882107" />
-    <state width="1493" height="261" key="GridCell.Tab.1.center" timestamp="1605812882106">
+    <state width="1478" height="261" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1606317646089" />
+    <state width="1478" height="261" key="GridCell.Tab.1.center" timestamp="1606317646089">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1605812882106" />
-    <state width="1493" height="261" key="GridCell.Tab.1.left" timestamp="1605812882106">
+    <state width="1478" height="261" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1606317646089" />
+    <state width="1478" height="261" key="GridCell.Tab.1.left" timestamp="1606317646089">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1605812882106" />
-    <state width="1493" height="261" key="GridCell.Tab.1.right" timestamp="1605812882107">
+    <state width="1478" height="261" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1606317646089" />
+    <state width="1478" height="261" key="GridCell.Tab.1.right" timestamp="1606317646089">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1493" height="261" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1605812882107" />
-    <state x="249" y="0" key="SettingsEditor" timestamp="1605288340764">
+    <state width="1478" height="261" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1606317646089" />
+    <state x="249" y="0" key="SettingsEditor" timestamp="1606319742293">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="249" y="0" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1605288340764" />
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1605293712920">
+    <state x="249" y="0" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1606319742293" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2" timestamp="1605813569328">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1605293712920" />
+    <state x="361" y="145" key="Vcs.Push.Dialog.v2/0.0.1536.824@0.0.1536.824" timestamp="1605813569328" />
     <state x="498" y="304" key="com.intellij.jarRepository.RepositoryAttachDialog-DOWNLOAD" timestamp="1605203567312">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -189,7 +196,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/ndzl/fxop/FXOP_ONE.java</url>
-          <line>70</line>
+          <line>72</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

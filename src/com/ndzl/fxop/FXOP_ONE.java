@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 //import static javafx.application.Platform.exit;  //for exit()
 
 /*
+TO SPEEDUP INTELLIJ BUILD TIME... SWITCH OFF ONEDRIVE :)
+
 REMOTE DEBUG. To be run on fx jvm:
 * java -Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y -Djava.library.path=/platform/lib/  -cp .:/platform/lib/Symbol.RFID.API3.jar com.ndzl.fxop.FXOP_ONE
 
@@ -25,14 +27,14 @@ public class FXOP_ONE {
     ConcurrentLinkedQueue<String> hs = new ConcurrentLinkedQueue<>();
 
     public FXOP_ONE(){
-        Connect();
+        Connect("169.254.10.1");  //"127.0.0.1" for embedded apps
         //WriteTag();
-
+/*
         InventorySetup(); //keep this always enabled
-        InventoryRun(5000);  //use many tags near the antenna to show a good output!
+        //InventoryRun(5000);  //use many tags near the antenna to show a good output!
         //InventoryRunWithPrefilter(5000);  //use many tags near the antenna to show a good output!
-        //InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
-
+        InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
+*/
         Disconnect();
     }
 
@@ -43,37 +45,43 @@ public class FXOP_ONE {
         new FXOP_ONE();
     }
 
-    void Connect(){
+    void Connect(String address){
         myReader = new RFIDReader();
 
-        //myReader.setHostName("169.254.10.1");
-        myReader.setHostName("127.0.0.1");
+        myReader.setHostName(address);
         myReader.setPort(5084);
 
         antennas = myReader.Config.Antennas;
 
         try {
             myReader.connect();
+
+            System.out.println("Reader connected!");
+            System.out.println("ModelName= "+myReader.ReaderCapabilities.getModelName());
+            FX_reader_serial = myReader.ReaderCapabilities.ReaderID.getID();
+            System.out.println("SerialNo= "+FX_reader_serial);
+            System.out.println("FirmwareVersion="+myReader.ReaderCapabilities.getFirwareVersion());
+            System.out.println("Printing data to ./rfid_data.txt");
+
+            //TO SHOW CONFIGURATION PERSISTENCE
+            /*
+            setAntenna2_minPower();
+            myReader.Config.saveLlrpConfig();
+
+             */
+
+            System.out.println("Transmit power index table\n"+getTransmitPowerIndexTable());
         } catch (InvalidUsageException e) {
             e.printStackTrace();
         } catch (OperationFailureException e) {
             e.printStackTrace();
         }
-
-        //dopo connect aggiungere event handlers eventuali
-        System.out.println("Reader connected!");
-        System.out.println("ModelName= "+myReader.ReaderCapabilities.getModelName());
-        FX_reader_serial = myReader.ReaderCapabilities.ReaderID.getID();
-        System.out.println("SerialNo= "+FX_reader_serial);
-        System.out.println("FirmwareVersion="+myReader.ReaderCapabilities.getFirwareVersion());
-        System.out.println("Printing data to ./rfid_data.txt");
-
-        System.out.println("Transmit power index table\n"+getTransmitPowerIndexTable());
     }
 
     void Disconnect(){
         try {
             myReader.disconnect();
+            System.out.println("Reader disconnected.");
         } catch (InvalidUsageException e) {
             e.printStackTrace();
         } catch (OperationFailureException e) {
@@ -101,18 +109,18 @@ public class FXOP_ONE {
         writeAccessParams.setMemoryBank(memBank);
 
         try {
-            byte[] writeData = hexStringToByteArray("0004");
+            byte[] writeData = hexStringToByteArray("5432");
             writeAccessParams.setWriteData(writeData);
             writeAccessParams.setWriteDataLength(2);
             writeAccessParams.setByteOffset(14);
             writeAccessParams.setAccessPassword(0);
 
-            myReader.Actions.TagAccess.writeWait("321833B2DDD9014000000003", writeAccessParams,  null);
+            myReader.Actions.TagAccess.writeWait("321833B2DDD9014000000106", writeAccessParams,  null);
 
         } catch (InvalidUsageException e) {
-           // e.printStackTrace();
+           e.printStackTrace();
         } catch (OperationFailureException e) {
-           // e.printStackTrace();
+           e.printStackTrace();
         }
 
     }
@@ -419,7 +427,7 @@ public class FXOP_ONE {
 
     }
 
-    String getTransmitPowerIndexTable(){
+    String getTransmitPowerIndexTable() throws InvalidUsageException, OperationFailureException {
         int [] powerLevels = myReader.ReaderCapabilities.getTransmitPowerLevelValues();
         //return String.valueOf(powerLevels[]);
         StringBuilder _ssbb=new StringBuilder();
@@ -430,6 +438,9 @@ public class FXOP_ONE {
         */
         _ssbb.append("min index 0 = "+(1.0d*powerLevels[0])/100.0+"dBm\n");
         _ssbb.append("max index "+(powerLevels.length-1)+  " = "+1.0*powerLevels[powerLevels.length-1]/100.0+"dBm\n");
+
+        _ssbb.append("current power idx for Antenna2 = "+myReader.Config.Antennas.getAntennaConfig(2).getTransmitPowerIndex()+"\n");
+
         return _ssbb.toString();
     }
 
