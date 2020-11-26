@@ -29,12 +29,12 @@ public class FXOP_ONE {
     public FXOP_ONE(){
         Connect("169.254.10.1");  //"127.0.0.1" for embedded apps
         //WriteTag();
-/*
+
         InventorySetup(); //keep this always enabled
         //InventoryRun(5000);  //use many tags near the antenna to show a good output!
         //InventoryRunWithPrefilter(5000);  //use many tags near the antenna to show a good output!
         InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
-*/
+
         Disconnect();
     }
 
@@ -139,6 +139,20 @@ public class FXOP_ONE {
         }
     }
 
+    void setAntenna2_averagePower(){
+        try {
+            Antennas.AntennaRfConfig antennaRfConfig = myReader.Config.Antennas.getAntennaRfConfig(2);
+            antennaRfConfig.setTransmitPowerIndex((short)100);
+            myReader.Config.Antennas.setAntennaRfConfig(2,antennaRfConfig);
+            System.out.println("CURRENT ANTENNA 2 POWER IDX: "+ antennaRfConfig.getTransmitPowerIndex());
+
+        } catch (InvalidUsageException e) {
+            //e.printStackTrace();
+        } catch (OperationFailureException e) {
+            //e.printStackTrace();
+        }
+    }
+
     void setAntenna2_maxPower(){
         try {
             int maxidx = myReader.ReaderCapabilities.getTransmitPowerLevelValues().length-1;
@@ -158,7 +172,7 @@ public class FXOP_ONE {
     {
         System.out.println("WriteECPplusplus::BEGIN");
 
-        setAntenna2_minPower();
+        setAntenna2_maxPower();
 
         TagAccess tagAccess = new TagAccess();
         TagAccess.WriteAccessParams writeAccessParams = tagAccess.new WriteAccessParams();
@@ -392,7 +406,7 @@ public class FXOP_ONE {
 
         isReadWriteOperation = true;
 
-        setAntenna2_maxPower();  //higher power recommended for writing ops
+        setAntenna2_averagePower(); //for inventory
 
         try {
             myReader.Actions.Inventory.perform();
