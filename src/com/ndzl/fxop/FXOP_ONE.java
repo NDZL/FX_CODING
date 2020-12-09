@@ -32,7 +32,7 @@ public class FXOP_ONE {
         //WriteTag();
 
         InventorySetup(); //keep this always enabled
-        accessReadTID();
+        accessReadTID();  //E28068940000400B0C90F50C
         InventoryRun(3000);  //use many tags near the antenna to show a good output!
         //InventoryRunWithPrefilter(3000);  //use many tags near the antenna to show a good output!
         //InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
@@ -320,7 +320,7 @@ public class FXOP_ONE {
 
 
 
-                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",EPC:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI+" MEMBANK="+accessResult;
+                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",EPC:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI+" TID="+accessResult;
 
                 hs.add(date+"-"+tagdata);
                 System.out.println(tagdata);
