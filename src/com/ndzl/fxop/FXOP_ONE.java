@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 TO SPEEDUP INTELLIJ BUILD TIME... SWITCH OFF ONEDRIVE :)
 
 REMOTE DEBUG. To be run on fx jvm:
-* java -Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y -Djava.library.path=/platform/lib/  -cp .:/platform/lib/Symbol.RFID.API3.jar com.ndzl.fxop.FXOP_ONE
+java -Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y -Djava.library.path=/platform/lib/  -cp .:/platform/lib/Symbol.RFID.API3.jar com.ndzl.fxop.FXOP_ONE
 
  * */
 
@@ -27,13 +27,15 @@ public class FXOP_ONE {
     ConcurrentLinkedQueue<String> hs = new ConcurrentLinkedQueue<>();
 
     public FXOP_ONE(){
-        Connect("169.254.10.1");  //"127.0.0.1" for embedded apps
+        Connect("169.254.10.1");  //for usb-connected host apps
+        //Connect("127.0.0.1");  //for embedded apps
         //WriteTag();
 
         InventorySetup(); //keep this always enabled
-        //InventoryRun(5000);  //use many tags near the antenna to show a good output!
-        //InventoryRunWithPrefilter(5000);  //use many tags near the antenna to show a good output!
-        InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
+        accessReadTID();
+        InventoryRun(3000);  //use many tags near the antenna to show a good output!
+        //InventoryRunWithPrefilter(3000);  //use many tags near the antenna to show a good output!
+        //InventoryOneTag_EPCplusplus( 500 ); //needs InventorySetup(); to be run before; tags around the antenna: the fewer, the better
 
         Disconnect();
     }
@@ -64,11 +66,11 @@ public class FXOP_ONE {
             System.out.println("Printing data to ./rfid_data.txt");
 
             //TO SHOW CONFIGURATION PERSISTENCE
-            /*
-            setAntenna2_minPower();
-            myReader.Config.saveLlrpConfig();
 
-             */
+            //setAntenna2_minPower();
+            //myReader.Config.saveLlrpConfig();
+
+
 
             System.out.println("Transmit power index table\n"+getTransmitPowerIndexTable());
         } catch (InvalidUsageException e) {
@@ -202,6 +204,66 @@ public class FXOP_ONE {
         System.out.println("WriteECPplusplus::END");
     }
 
+    void accessReadTID(){
+        //TID
+        TagAccess tagaccess = new TagAccess();
+        MEMORY_BANK memoryBank = MEMORY_BANK.MEMORY_BANK_TID;
+        TagAccess.Sequence opSequence = tagaccess.new Sequence(tagaccess);
+        TagAccess.Sequence.Operation op1 = opSequence.new Operation();
+        op1.setAccessOperationCode(ACCESS_OPERATION_CODE.ACCESS_OPERATION_READ);
+
+
+        op1.ReadAccessParams.setMemoryBank(memoryBank);
+        op1.ReadAccessParams.setByteCount(0);
+        op1.ReadAccessParams.setByteOffset(0);
+        op1.ReadAccessParams.setAccessPassword(0);
+        try {
+            myReader.Actions.TagAccess.OperationSequence.deleteAll();
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+        try {
+            myReader.Actions.TagAccess.OperationSequence.add(op1);
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+        myReader.Actions.purgeTags();
+        try {
+            myReader.Actions.TagAccess.OperationSequence.performSequence(null, null, null);
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void readTID(String epc){
+
+        //TID ACCESS
+        String tagEPC = epc;// "E28068940000400B0C90F50C";
+        TagAccess tagAccess = new TagAccess();
+        TagAccess.ReadAccessParams readAccessParams = tagAccess.new ReadAccessParams();
+        TagData readAccessTag = null;
+        //readAccessParams.setAccessPassword(0);
+        //readAccessParams.setByteCount(8);
+        readAccessParams.setMemoryBank(MEMORY_BANK.MEMORY_BANK_TID);
+       // readAccessParams.setByteOffset(0);
+        try {
+            readAccessTag = myReader.Actions.TagAccess.readWait( tagEPC , readAccessParams, null);
+        } catch (InvalidUsageException e) {
+            e.printStackTrace();
+        } catch (OperationFailureException e) {
+            e.printStackTrace();
+        }
+        System.out.println("EPC="+tagEPC+"\t\t"+readAccessTag.getMemoryBank().toString() + "=" + readAccessTag.getMemoryBankData());
+        //+" TID="+readAccessTag.getMemoryBankData()
+
+    }
+
     class EventPrinter implements Runnable {
 
         @Override
@@ -250,7 +312,15 @@ public class FXOP_ONE {
 
                 String tag_antenna = ""+tag.getAntennaID();
                 String tag_RSSI = ""+tag.getPeakRSSI();
-                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",EPC:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI;
+
+
+                String accessResult="N/A";
+                if (tag.getOpCode() == ACCESS_OPERATION_CODE.ACCESS_OPERATION_READ)
+                    accessResult = tag.getMemoryBankData();
+
+
+
+                String tagdata = FX_reader_serial+"-"+/*tag_time.ConvertTimetoString()+*/",EPC:"+key+",ant:"+tag_antenna+",rssi:"+tag_RSSI+" MEMBANK="+accessResult;
 
                 hs.add(date+"-"+tagdata);
                 System.out.println(tagdata);
@@ -350,7 +420,7 @@ public class FXOP_ONE {
         try{
             PreFilters filters = new PreFilters();
             PreFilters.PreFilter filter = filters.new PreFilter();
-            byte[] tagMask = new byte[] { 0x32, 0x18 }; // ATTENTION: "3218".getBytes();  would be wrong!
+            byte[] tagMask = new byte[] { 0x00, 0x00 }; // ATTENTION: "3218".getBytes();  would be wrong!
             filter.setAntennaID((short) 2 );// Set this filter for Antenna ID 2
             filter.setTagPattern(tagMask);// Tags which starts with 0x...
             filter.setTagPatternBitCount(tagMask.length * 8);

@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="FXOP_ONE:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/FXOP_ONE_jar</output-path>
+    <root id="archive" name="FXOP_ONE.jar">
+      <element id="module-output" name="FXOP_ONE" />
+      <element id="library" level="project" name="System32" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Program Files/Zebra FXSeries Host Java SDK/RFID/bin/Symbol.RFID.API3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
